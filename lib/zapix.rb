@@ -1,7 +1,7 @@
 require "zapix/version"
 require_relative "zapix/zabbix_rpc_client"
 
-class ZabbixAPI
+class Zapix
   attr :client
 
   def self.connect(options = {})
