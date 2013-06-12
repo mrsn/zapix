@@ -10,8 +10,8 @@ class ZabbixAPI
 
   def initialize(options = {})
     @client = ZabbixRPCClient.new(options)
-    Dir["#{File.dirname(__FILE__)}/zabbixapi/zabbix_classes/*.rb"].each { |f| load(f) }
-    Dir["#{File.dirname(__FILE__)}/zabbixapi/proxies/*.rb"].each { |f| load(f) }
+    Dir["#{File.dirname(__FILE__)}/zapix/zabbix_classes/*.rb"].each { |f| load(f) }
+    Dir["#{File.dirname(__FILE__)}/zapix/proxies/*.rb"].each { |f| load(f) }
   end
 
   def hostgroups
