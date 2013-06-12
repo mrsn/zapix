@@ -1,3 +1,4 @@
+require_relative "basic"
 class Templates < Basic
 
 def exists?(name)

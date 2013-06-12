@@ -1,3 +1,4 @@
+require_relative "basic"
 class Hosts < Basic
 
   def get_id(name)
