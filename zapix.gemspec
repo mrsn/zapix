@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["stoyanov@adesso-mobile.de"]
   spec.description   = %q{Communication with the Zabbix API made easy}
   spec.summary       = %q{A cool gem}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/mrsn/zapix"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
