@@ -46,12 +46,10 @@ class Hosts < Basic
 
   private
 
-  def extract_host_names(hosts)
-    host_names = Array.new
-    hosts.each do |current_host|
-      host_names << current_host["name"]
+  def extract_host_names(hosts_and_ids)
+    hosts_and_ids.map do |current_host|
+      current_host["name"]
     end
-    host_names
   end
 
 class NonExistingHost < StandardError; end

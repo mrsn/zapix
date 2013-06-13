@@ -43,7 +43,14 @@ end
 def get_all
   # the fucking API also returns the ids and that's
   # why we need to extract the names
-  @client.hostgroup_get({"output" => ["name"]})
+  host_groups_with_ids = @client.hostgroup_get({"output" => ["name"]})
+  extract_host_groups(host_groups_with_ids)
+end
+
+def extract_host_groups(group_names_and_ids)
+  group_names_and_ids.map do |hostgroup|
+    hostgroup["name"]
+  end
 end
 
 class NonExistingHostgroup < StandardError; end
