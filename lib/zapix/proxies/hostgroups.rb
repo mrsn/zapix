@@ -12,6 +12,15 @@ def create(name)
   @client.hostgroup_create({"name" => name}) unless exists?(name)
 end
 
+def create_or_update(name)
+  if(exists?(name))
+    id = get_id(name)
+    @client.hostgroup_update({"groupid" => id,"name" => name})
+  else
+    create(name)
+  end
+end
+
 def exists?(name)
   @client.hostgroup_exists({"name" => name})
 end
@@ -31,10 +40,35 @@ def mass_delete(*names)
   end
 end
 
+def get_hosts_of(hostgroup)
+  result = @client.hostgroup_get("filter" => {"name" => [hostgroup]}, "selectHosts" => "refer")
+  extract_host_ids(result)
+end
+
+def any_hosts?(hostgroup)
+  raise NonExistingHostgroup, "Hostgroup #{hostgroup} does not exist !" unless exists?(hostgroup)
+  result = @client.hostgroup_get("filter" => {"name" => [hostgroup]}, "selectHosts" => "count").first["hosts"].to_i
+  if(result >= 1)
+    true
+  else
+    false
+  end
+end
+
 def delete(name)
   if(exists?(name))
-    group_id = get_id(name)
-    @client.hostgroup_delete([group_id])
+    # host cannot exist without a hostgroup, so we need to delete 
+    # the attached hosts also
+
+    if(any_hosts?(name))
+        # delete all hosts attached to a hostgroup
+        @client.host_delete(get_hosts_of(name))
+        # now it is ok to delete the group
+        @client.hostgroup_delete([get_id(name)])
+    else
+      @client.hostgroup_delete([get_id(name)])
+    end
+
   else
     raise NonExistingHostgroup, "Hostgroup #{name} does not exist !"
   end
@@ -45,6 +79,10 @@ def get_all
   # why we need to extract the names
   host_groups_with_ids = @client.hostgroup_get({"output" => ["name"]})
   extract_host_groups(host_groups_with_ids)
+end
+
+def extract_host_ids(query_result)
+  query_result.first["hosts"].map { |host| host["hostid"] }
 end
 
 def extract_host_groups(group_names_and_ids)

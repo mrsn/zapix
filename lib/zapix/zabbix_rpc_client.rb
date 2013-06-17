@@ -4,7 +4,7 @@ require 'json'
  
 class ZabbixRPCClient
 
-  attr_reader :uri, :debug, :auth_token
+  attr_reader :uri, :debug
 
   def initialize(options)
     @uri = URI.parse(options[:service_url])
@@ -16,7 +16,13 @@ class ZabbixRPCClient
  
   def method_missing(name, *args)
     method_name = map_name(name)
-    post_body = { "method" => method_name, "params" => args[0], "id" => id, "jsonrpc" => "2.0", "auth" => auth_token }.to_json
+
+    post_body = { "method" => method_name,
+                  "params" => args.first,
+                  "id" => id,
+                  "jsonrpc" => "2.0",
+                  "auth" => @auth_token }.to_json
+
     resp = JSON.parse( http_post_request(post_body) )
     raise JSONRPCError, resp["error"] if resp["error"]
     puts "[DEBUG] Get answer: #{resp}" if debug
