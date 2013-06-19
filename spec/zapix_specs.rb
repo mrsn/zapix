@@ -1,9 +1,9 @@
 require_relative 'spec_helper'
 
 zrc = ZabbixAPI.connect(
-  :service_url => @api_url,
-  :username => @api_login,
-  :password => @api_password,
+  :service_url => ENV["ZABBIX_API_URL"],
+  :username => ENV["ZABBIX_API_LOGIN"],
+  :password => ENV["ZABBIX_API_PASSWORD"],
   :debug => true
   )
 
@@ -88,9 +88,8 @@ describe ZabbixAPI do
 
      it "deletes a hostgroup with attached hosts" do
       zrc.hosts.exists?(host).should be_true
-      zrc.hosts.get_all
-      zrc.hosts.delete("hostname")
       zrc.hostgroups.delete(hostgroup_with_hosts)
+      zrc.hostgroups.exists?(hostgroup_with_hosts).should be_false
     end
    
   end
