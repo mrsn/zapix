@@ -60,14 +60,14 @@ def delete(name)
     # host cannot exist without a hostgroup, so we need to delete 
     # the attached hosts also
 
-    if(any_hosts?(name))
-        # delete all hosts attached to a hostgroup
-        @client.host_delete(get_hosts_of(name))
-        # now it is ok to delete the group
-        @client.hostgroup_delete([get_id(name)])
-    else
+  #  if(any_hosts?(name))
+  #      # delete all hosts attached to a hostgroup
+  #      @client.host_delete(get_hosts_of(name))
+  #      # now it is ok to delete the group
+  #      @client.hostgroup_delete([get_id(name)])
+    #else
       @client.hostgroup_delete([get_id(name)])
-    end
+  #  end
 
   else
     raise NonExistingHostgroup, "Hostgroup #{name} does not exist !"

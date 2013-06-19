@@ -14,6 +14,7 @@ class Hosts < Basic
   end
 
   def create_or_update(options={})
+    raise EmptyHostname, "Host name cannot be empty !" if options["host"].nil?
     if exists?(options["host"])
       id = get_id(options["host"])
       options.merge!("hostid" => id)
@@ -21,6 +22,11 @@ class Hosts < Basic
     else
       create(options)
     end
+  end
+
+  def unlink_templates(options={})
+    template_ids = options["template_ids"].map { |id| {"templateid" => id}}
+    @client.host_update({"hostid" => options["host_id"], "templates_clear" => template_ids})
   end
 
   def exists?(name)
@@ -53,5 +59,6 @@ class Hosts < Basic
   end
 
 class NonExistingHost < StandardError; end
+class EmptyHostname < StandardError; end
 
 end

@@ -20,7 +20,7 @@ class Host
     @properties.merge!("groups" => group_ids)
   end
 
-  def add_interface(*ifaces)
+  def add_interfaces(*ifaces)
     interfaces.concat(ifaces)
     @properties.merge!("interfaces" => interfaces)
   end
