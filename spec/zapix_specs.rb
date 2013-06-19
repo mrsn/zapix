@@ -1,9 +1,5 @@
 require_relative 'spec_helper'
 
-@api_url = "http://cloud9.dyndns-server.com/zabbix/api_jsonrpc.php"
-@api_login = "techuser"
-@api_password = "kamelia"
-
 zrc = ZabbixAPI.connect(
   :service_url => @api_url,
   :username => @api_login,
