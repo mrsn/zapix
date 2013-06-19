@@ -1,8 +1,8 @@
 require_relative 'spec_helper'
 
-@api_url = ""
-@api_login = ""
-@api_password = ""
+@api_url = "http://cloud9.dyndns-server.com/zabbix/api_jsonrpc.php"
+@api_login = "techuser"
+@api_password = "kamelia"
 
 zrc = ZabbixAPI.connect(
   :service_url => @api_url,
@@ -92,14 +92,14 @@ describe ZabbixAPI do
 
      it "deletes a hostgroup with attached hosts" do
       zrc.hosts.exists?(host).should be_true
-      p zrc.hosts.get_all
+      zrc.hosts.get_all
       zrc.hosts.delete("hostname")
       zrc.hostgroups.delete(hostgroup_with_hosts)
     end
    
   end
 
-  context "complex hostgroup" do
+  context "complex hostgroup should be easy to delete" do
     before(:each) do
       zrc.hostgroups.create(hostgroup_with_hosts)
       hostgroup_id = zrc.hostgroups.get_id(hostgroup_with_hosts)
@@ -120,6 +120,11 @@ describe ZabbixAPI do
       zrc.hostgroups.any_hosts?(hostgroup_with_hosts).should be_true
     end
 
+    it "returns all the host ids of a hosts belonging to a hostgroup" do
+      host_id = zrc.hosts.get_id(host)
+      zrc.hostgroups.get_host_ids_of(hostgroup_with_hosts).should include(host_id)
+    end
+
     it "gets the right template id for host" do
       result = zrc.templates.get_templates_for_host(zrc.hosts.get_id(host))
       result.should include(zrc.templates.get_id(template_1))
@@ -136,7 +141,7 @@ describe ZabbixAPI do
       result.should_not include(zrc.templates.get_id(template_2))
     end
 
-    it "throws exception if updating host without specifying the hostname" do
+    it "throws an exception if updating a host without specifying the hostname" do
       example_host = Host.new
       example_host.add_interfaces(create_interface)
       expect { zrc.hosts.create_or_update(example_host.to_hash) }.to raise_error(Hosts::EmptyHostname)

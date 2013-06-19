@@ -40,7 +40,7 @@ def mass_delete(*names)
   end
 end
 
-def get_hosts_of(hostgroup)
+def get_host_ids_of(hostgroup)
   result = @client.hostgroup_get("filter" => {"name" => [hostgroup]}, "selectHosts" => "refer")
   extract_host_ids(result)
 end
@@ -59,15 +59,17 @@ def delete(name)
   if(exists?(name))
     # host cannot exist without a hostgroup, so we need to delete 
     # the attached hosts also
-
-  #  if(any_hosts?(name))
-  #      # delete all hosts attached to a hostgroup
-  #      @client.host_delete(get_hosts_of(name))
-  #      # now it is ok to delete the group
-  #      @client.hostgroup_delete([get_id(name)])
-    #else
+    if(any_hosts?(name))
+      # delete all hosts attached to a hostgroup
+      host_ids = get_host_ids_of(name)
+      host_ids.each do |id|
+        @client.host_delete(["hostid" => id])
+      end
+      # now it is ok to delete the group
       @client.hostgroup_delete([get_id(name)])
-  #  end
+    else
+      @client.hostgroup_delete([get_id(name)])
+    end
 
   else
     raise NonExistingHostgroup, "Hostgroup #{name} does not exist !"
