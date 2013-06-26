@@ -1,5 +1,5 @@
-require "zapix/version"
-require_relative "zapix/zabbix_rpc_client"
+require 'zapix/version'
+require_relative 'zapix/zabbix_rpc_client'
 
 class ZabbixAPI
   attr :client
