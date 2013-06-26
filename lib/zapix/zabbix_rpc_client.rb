@@ -1,6 +1,6 @@
-require "net/http"
-require "uri"
-require "json"
+require 'net/http'
+require 'uri'
+require 'json'
  
 class ZabbixRPCClient
 
@@ -17,14 +17,16 @@ class ZabbixRPCClient
   def method_missing(name, *args)
     method_name = map_name(name)
 
-    post_body = { "method" => method_name,
-                  "params" => args.first,
-                  "id" => id,
-                  "jsonrpc" => "2.0",
-                  "auth" => @auth_token }.to_json
+    post_body = {
+      'method' => method_name,
+      'params' => args.first,
+      'id' => id,
+      'jsonrpc' => '2.0',
+      'auth' => @auth_token 
+    }.to_json
 
     resp = JSON.parse( http_post_request(post_body) )
-    raise JSONRPCError, resp["error"] if resp["error"]
+    raise JSONRPCError, resp['error'] if resp['error']
     puts "[DEBUG] Get answer: #{resp}" if debug
     resp["result"]
   end
@@ -32,14 +34,14 @@ class ZabbixRPCClient
   def http_post_request(post_body)
     http    = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Post.new(uri.request_uri)
-    request.content_type = "application/json"
+    request.content_type = 'application/json'
     request.body = post_body
     puts "[DEBUG] Send request: #{request.body}" if debug
     http.request(request).body
   end
 
   def authenticate
-    user_login({"user" => @username, "password" => @password})
+    user_login({'user' => @username, 'password' => @password})
   end
 
   def id
@@ -47,7 +49,7 @@ class ZabbixRPCClient
   end
 
   def map_name(name)
-   name.to_s.sub("_", ".")
+   name.to_s.sub('_', '.')
   end
 
   class JSONRPCError < RuntimeError; end
