@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "zapix"
   spec.version       = Zapix::VERSION
   spec.authors       = ["stoyan"]
-  spec.email         = ["stoyanov@adesso-mobile.de"]
+  spec.email         = ["stoyanoff.s@gmail.com"]
   spec.description   = %q{Communication with the Zabbix API made easy}
   spec.summary       = %q{A cool gem}
   spec.homepage      = "https://github.com/mrsn/zapix"
