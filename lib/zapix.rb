@@ -26,4 +26,12 @@ class ZabbixAPI
     @templates ||= Templates.new(@client)
   end
 
+  def applications
+    @applications ||= Applications.new(@client)
+  end
+
+  def scenarios
+    @scenarios ||= Scenarios.new(@client)
+  end
+
 end

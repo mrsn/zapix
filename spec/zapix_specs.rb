@@ -12,8 +12,9 @@ another_hostgroup = 'anotherhostgroup'
 hostgroup_with_hosts = 'withhosts'
 template_1 = 'Template OS Linux'
 template_2 = 'Template App MySQL'
-application = 'application'
+application = 'web scenarios'
 host = 'hostname'
+scenario = 'scenario'
 
 describe ZabbixAPI do
 
@@ -87,7 +88,7 @@ describe ZabbixAPI do
    
   end
 
-  context 'complex hostgroup should be easy to delete' do
+  context 'complex hostgroup' do
     before(:each) do
       zrc.hostgroups.create(hostgroup_with_hosts)
       hostgroup_id = zrc.hostgroups.get_id(hostgroup_with_hosts)
@@ -98,6 +99,20 @@ describe ZabbixAPI do
       example_host.add_group_ids(hostgroup_id)
       example_host.add_template_ids(zrc.templates.get_id(template_1), zrc.templates.get_id(template_2))
       zrc.hosts.create_or_update(example_host.to_hash)
+
+      # create application for the host
+      application_options = {}
+      application_options['name'] = application
+      application_options['hostid'] = zrc.hosts.get_id(host)
+      zrc.applications.create(application_options)
+
+      # creates web scenarios for host
+      webcheck_options = {}
+      webcheck_options['hostid'] = zrc.hosts.get_id(host)
+      webcheck_options['name'] = scenario
+      webcheck_options['applicationid'] = zrc.applications.get_id(application_options)
+      webcheck_options['steps'] = [{'name' => 'Homepage', 'url' => 'm.test.de', 'status_codes' => 200, 'no' => 1}]
+      zrc.scenarios.create(webcheck_options)
     end
 
     after(:each) do
@@ -168,6 +183,69 @@ describe ZabbixAPI do
       options['host_id'] = host_id
       options['macros'] = [{'macro' => '{$TESTMACRO}', 'value' => 'this is only a test macro'}]
       zrc.hosts.update_macros(options)
+    end
+
+    it 'returns false if an application does not exist' do
+      options = {}
+      options['name'] = 'nonexisting'
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.applications.exists?(options).should be_false
+    end
+
+    it 'returns true if an application exists' do
+      options = {}
+      options['name'] = application
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.applications.exists?(options).should be_true
+    end
+
+    it 'get an application id by application name and host' do
+      options = {}
+      options['name'] = application
+      options['hostid'] = zrc.hosts.get_id(host)
+      result = zrc.applications.get_id(options)
+      (result.to_i).should >= 0
+    end
+
+    it 'throws exception on non existing application' do
+      options = {}
+      options['name'] = "nonexisting"
+      options['hostid'] = zrc.hosts.get_id(host)
+      expect { zrc.applications.get_id(options) }.to raise_error(Applications::NonExistingApplication)
+    end
+
+    it 'deletes an applications for host' do
+      pending 'Not implemented'
+    end
+
+    it 'returns true if web scenarios exists' do
+      options = {}
+      options['name'] = scenario
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.scenarios.exists?(options).should be_true
+    end
+
+    it 'gets the id of a web scenario' do
+      options = {}
+      options['name'] = scenario
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.scenarios.exists?(options).should be_true
+      zrc.scenarios.get_id(options)
+    end
+
+    it 'returns false if a web scenario does not exist' do
+      options = {}
+      options['name'] = "nonexisting"
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.scenarios.exists?(options).should be_false
+    end
+
+    it 'deletes a web scenario' do
+      options = {}
+      options['name'] = scenario
+      options['hostid'] = zrc.hosts.get_id(host)
+      zrc.scenarios.delete(options)
+      zrc.scenarios.exists?(options).should be_false
     end
   end
 
