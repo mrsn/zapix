@@ -59,15 +59,14 @@ class Hosts < Basic
     end
   end
 
-  private
+  class NonExistingHost < StandardError; end
+  class EmptyHostname < StandardError; end
+
+private
 
   def extract_host_names(hosts_and_ids)
     hosts_and_ids.map do |current_host|
       current_host['name']
     end
   end
-
-class NonExistingHost < StandardError; end
-class EmptyHostname < StandardError; end
-
 end

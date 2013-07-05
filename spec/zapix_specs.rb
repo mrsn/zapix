@@ -15,6 +15,9 @@ template_2 = 'Template App MySQL'
 application = 'web scenarios'
 host = 'hostname'
 scenario = 'scenario'
+trigger_description = 'Webpage failed on {HOST.NAME}'
+trigger_expression = "{#{host}:web.test.fail[#{scenario}].max(#3)}#0"
+non_existing_trigger_expression = '{vfs.file.cksum[/etc/passwd].diff(0)}>0'
 
 describe ZabbixAPI do
 
@@ -113,6 +116,14 @@ describe ZabbixAPI do
       webcheck_options['applicationid'] = zrc.applications.get_id(application_options)
       webcheck_options['steps'] = [{'name' => 'Homepage', 'url' => 'm.test.de', 'status_codes' => 200, 'no' => 1}]
       zrc.scenarios.create(webcheck_options)
+
+      # creates a trigger
+      options = {}
+      options['description'] = trigger_description
+      options['expression'] = trigger_expression
+      options['priority'] = '2' # 2 means Warning
+      zrc.triggers.create(options)
+      
     end
 
     after(:each) do
@@ -214,10 +225,6 @@ describe ZabbixAPI do
       expect { zrc.applications.get_id(options) }.to raise_error(Applications::NonExistingApplication)
     end
 
-    it 'deletes an applications for host' do
-      pending 'Not implemented'
-    end
-
     it 'returns true if web scenarios exists' do
       options = {}
       options['name'] = scenario
@@ -241,11 +248,45 @@ describe ZabbixAPI do
     end
 
     it 'deletes a web scenario' do
+      pending 'Not ready'
       options = {}
       options['name'] = scenario
       options['hostid'] = zrc.hosts.get_id(host)
       zrc.scenarios.delete(options)
       zrc.scenarios.exists?(options).should be_false
+    end
+
+    it 'deletes a trigger' do
+      options = {}
+      options['expression'] = trigger_expression
+      zrc.triggers.exists?(options).should be_true
+      id = zrc.triggers.get_id(options)
+      zrc.triggers.delete(id)
+      zrc.triggers.exists?(options).should be_false
+    end
+
+    it 'gets an id of a trigger' do
+      options = {}
+      options['expression'] = trigger_expression
+      zrc.triggers.get_id(options).should >= 0
+    end
+
+    it 'throws exception if trying to get id of a non-existing trigger' do
+      options = {}
+      options['expression'] = non_existing_trigger_expression
+      expect { zrc.triggers.get_id(options) }.to raise_error(Triggers::NonExistingTrigger)
+    end
+
+    it 'returns true if a trigger exists' do
+      options = {}
+      options['expression'] = trigger_expression
+      zrc.triggers.exists?(options).should be_true
+    end
+
+    it 'returns false if a trigger does not exist' do
+      options = {}
+      options['expression'] = non_existing_trigger_expression
+      zrc.triggers.exists?(options).should be_false
     end
   end
 

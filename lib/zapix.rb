@@ -34,4 +34,8 @@ class ZabbixAPI
     @scenarios ||= Scenarios.new(@client)
   end
 
+  def triggers
+    @triggers ||= Triggers.new(@client)
+  end
+
 end
