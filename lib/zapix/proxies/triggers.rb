@@ -18,7 +18,7 @@ class Triggers < Basic
       'expandExpression' => true})
     id = extract_id(result, options['expression'])
     unless id.nil?
-      id.to_i
+      id
     else
       raise NonExistingTrigger, "Trigger with expression #{options['expression']} not found."
     end

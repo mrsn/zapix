@@ -268,7 +268,7 @@ describe ZabbixAPI do
     it 'gets an id of a trigger' do
       options = {}
       options['expression'] = trigger_expression
-      zrc.triggers.get_id(options).should >= 0
+      (zrc.triggers.get_id(options)).to_i.should >= 0
     end
 
     it 'throws exception if trying to get id of a non-existing trigger' do
