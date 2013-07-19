@@ -130,163 +130,170 @@ describe ZabbixAPI do
       zrc.hostgroups.delete(hostgroup_with_hosts)
     end
 
-    it 'returns true if a hostgroup has attached hosts' do
-      zrc.hostgroups.any_hosts?(hostgroup_with_hosts).should be_true
+    describe 'hosts' do
+
+      it 'returns true if a hostgroup has attached hosts' do
+        zrc.hostgroups.any_hosts?(hostgroup_with_hosts).should be_true
+      end
+
+      it 'returns all the host ids of a hosts belonging to a hostgroup' do
+        host_id = zrc.hosts.get_id(host)
+        zrc.hostgroups.get_host_ids_of(hostgroup_with_hosts).should include(host_id)
+      end
+
+      it 'gets the right template id for host' do
+        result = zrc.templates.get_templates_for_host(zrc.hosts.get_id(host))
+        result.should include(zrc.templates.get_id(template_1))
+        result.should include(zrc.templates.get_id(template_2))
+      end
+
+      it 'unlinks all templates for host' do
+        host_id = zrc.hosts.get_id(host)
+        options = {}
+        options['template_ids'] = zrc.templates.get_templates_for_host(host_id)
+        options['host_id'] = host_id
+        result = zrc.hosts.unlink_and_clear_templates(options)
+        result.should_not include(zrc.templates.get_id(template_1))
+        result.should_not include(zrc.templates.get_id(template_2))
+      end
+
+      it 'throws an exception if updating a host without specifying the hostname' do
+        example_host = Host.new
+        example_host.add_interfaces(create_interface)
+        expect { zrc.hosts.create_or_update(example_host.to_hash) }.to raise_error(Hosts::EmptyHostname)
+      end
+
+      it "updates host's interface after unlinking all belonging templates" do
+        # unlinking all items
+        host_id = zrc.hosts.get_id(host)
+        options = {}
+        zrc.templates.get_templates_for_host(host_id)
+        options['template_ids'] = zrc.templates.get_templates_for_host(host_id)
+        options['host_id'] = host_id
+        result = zrc.hosts.unlink_and_clear_templates(options)
+        # now it should be safe to update the interface of the host
+        example_host = Host.new
+        example_host.add_interfaces(create_interface)
+        example_host.add_name(host)
+        zrc.hosts.create_or_update(example_host.to_hash)
+      end
+
+      it "updates host's templates" do
+        host_id = zrc.hosts.get_id(host)
+        options = {}
+        options['host_id'] = host_id
+        template_id = zrc.templates.get_id('Template App Agentless')
+        options['template_ids'] = [template_id]
+        zrc.hosts.update_templates(options)
+        zrc.templates.get_templates_for_host(host_id).should include(template_id)
+      end
+
+      it "updates host's macro" do
+        host_id = zrc.hosts.get_id(host)
+        options = {}
+        options['host_id'] = host_id
+        options['macros'] = [{'macro' => '{$TESTMACRO}', 'value' => 'this is only a test macro'}]
+        zrc.hosts.update_macros(options)
+      end
     end
 
-    it 'returns all the host ids of a hosts belonging to a hostgroup' do
-      host_id = zrc.hosts.get_id(host)
-      zrc.hostgroups.get_host_ids_of(hostgroup_with_hosts).should include(host_id)
+    describe 'applications' do
+      it 'returns false if an application does not exist' do
+        options = {}
+        options['name'] = 'nonexisting'
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.applications.exists?(options).should be_false
+      end
+
+      it 'returns true if an application exists' do
+        options = {}
+        options['name'] = application
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.applications.exists?(options).should be_true
+      end
+
+      it 'get an application id by application name and host' do
+        options = {}
+        options['name'] = application
+        options['hostid'] = zrc.hosts.get_id(host)
+        result = zrc.applications.get_id(options)
+        (result.to_i).should >= 0
+      end
+
+      it 'throws exception on non existing application' do
+        options = {}
+        options['name'] = "nonexisting"
+        options['hostid'] = zrc.hosts.get_id(host)
+        expect { zrc.applications.get_id(options) }.to raise_error(Applications::NonExistingApplication)
+      end
     end
 
-    it 'gets the right template id for host' do
-      result = zrc.templates.get_templates_for_host(zrc.hosts.get_id(host))
-      result.should include(zrc.templates.get_id(template_1))
-      result.should include(zrc.templates.get_id(template_2))
+    describe 'web scenarios' do
+      it 'returns true if web scenarios exists' do
+        options = {}
+        options['name'] = scenario
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.scenarios.exists?(options).should be_true
+      end
+
+      it 'gets the id of a web scenario' do
+        options = {}
+        options['name'] = scenario
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.scenarios.exists?(options).should be_true
+        zrc.scenarios.get_id(options)
+      end
+
+      it 'returns false if a web scenario does not exist' do
+        options = {}
+        options['name'] = "nonexisting"
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.scenarios.exists?(options).should be_false
+      end
+
+      it 'deletes a web scenario' do
+        pending 'Not ready'
+        options = {}
+        options['name'] = scenario
+        options['hostid'] = zrc.hosts.get_id(host)
+        zrc.scenarios.delete(options)
+        zrc.scenarios.exists?(options).should be_false
+      end
     end
 
-    it 'unlinks all templates for host' do
-      host_id = zrc.hosts.get_id(host)
-      options = {}
-      options['template_ids'] = zrc.templates.get_templates_for_host(host_id)
-      options['host_id'] = host_id
-      result = zrc.hosts.unlink_and_clear_templates(options)
-      result.should_not include(zrc.templates.get_id(template_1))
-      result.should_not include(zrc.templates.get_id(template_2))
-    end
+    describe 'triggers' do
+      it 'deletes a trigger' do
+        options = {}
+        options['expression'] = trigger_expression
+        zrc.triggers.exists?(options).should be_true
+        id = zrc.triggers.get_id(options)
+        zrc.triggers.delete(id)
+        zrc.triggers.exists?(options).should be_false
+      end
 
-    it 'throws an exception if updating a host without specifying the hostname' do
-      example_host = Host.new
-      example_host.add_interfaces(create_interface)
-      expect { zrc.hosts.create_or_update(example_host.to_hash) }.to raise_error(Hosts::EmptyHostname)
-    end
+      it 'gets an id of a trigger' do
+        options = {}
+        options['expression'] = trigger_expression
+        (zrc.triggers.get_id(options)).to_i.should >= 0
+      end
 
-    it "updates host's interface after unlinking all belonging templates" do
-      # unlinking all items
-      host_id = zrc.hosts.get_id(host)
-      options = {}
-      zrc.templates.get_templates_for_host(host_id)
-      options['template_ids'] = zrc.templates.get_templates_for_host(host_id)
-      options['host_id'] = host_id
-      result = zrc.hosts.unlink_and_clear_templates(options)
-      #result = zrc.hosts.update_templates(options)
-      # now it should be safe to update the interface of the host
-      example_host = Host.new
-      example_host.add_interfaces(create_interface)
-      example_host.add_name(host)
-      zrc.hosts.create_or_update(example_host.to_hash)
-      # check
-    end
+      it 'throws exception if trying to get id of a non-existing trigger' do
+        options = {}
+        options['expression'] = non_existing_trigger_expression
+        expect { zrc.triggers.get_id(options) }.to raise_error(Triggers::NonExistingTrigger)
+      end
 
-    it "updates host's templates" do
-      host_id = zrc.hosts.get_id(host)
-      options = {}
-      options['host_id'] = host_id
-      template_id = zrc.templates.get_id('Template App Agentless')
-      options['template_ids'] = [template_id]
-      zrc.hosts.update_templates(options)
-      zrc.templates.get_templates_for_host(host_id).should include(template_id)
-    end
+      it 'returns true if a trigger exists' do
+        options = {}
+        options['expression'] = trigger_expression
+        zrc.triggers.exists?(options).should be_true
+      end
 
-    it "updates host's macro" do
-      host_id = zrc.hosts.get_id(host)
-      options = {}
-      options['host_id'] = host_id
-      options['macros'] = [{'macro' => '{$TESTMACRO}', 'value' => 'this is only a test macro'}]
-      zrc.hosts.update_macros(options)
-    end
-
-    it 'returns false if an application does not exist' do
-      options = {}
-      options['name'] = 'nonexisting'
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.applications.exists?(options).should be_false
-    end
-
-    it 'returns true if an application exists' do
-      options = {}
-      options['name'] = application
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.applications.exists?(options).should be_true
-    end
-
-    it 'get an application id by application name and host' do
-      options = {}
-      options['name'] = application
-      options['hostid'] = zrc.hosts.get_id(host)
-      result = zrc.applications.get_id(options)
-      (result.to_i).should >= 0
-    end
-
-    it 'throws exception on non existing application' do
-      options = {}
-      options['name'] = "nonexisting"
-      options['hostid'] = zrc.hosts.get_id(host)
-      expect { zrc.applications.get_id(options) }.to raise_error(Applications::NonExistingApplication)
-    end
-
-    it 'returns true if web scenarios exists' do
-      options = {}
-      options['name'] = scenario
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.scenarios.exists?(options).should be_true
-    end
-
-    it 'gets the id of a web scenario' do
-      options = {}
-      options['name'] = scenario
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.scenarios.exists?(options).should be_true
-      zrc.scenarios.get_id(options)
-    end
-
-    it 'returns false if a web scenario does not exist' do
-      options = {}
-      options['name'] = "nonexisting"
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.scenarios.exists?(options).should be_false
-    end
-
-    it 'deletes a web scenario' do
-      pending 'Not ready'
-      options = {}
-      options['name'] = scenario
-      options['hostid'] = zrc.hosts.get_id(host)
-      zrc.scenarios.delete(options)
-      zrc.scenarios.exists?(options).should be_false
-    end
-
-    it 'deletes a trigger' do
-      options = {}
-      options['expression'] = trigger_expression
-      zrc.triggers.exists?(options).should be_true
-      id = zrc.triggers.get_id(options)
-      zrc.triggers.delete(id)
-      zrc.triggers.exists?(options).should be_false
-    end
-
-    it 'gets an id of a trigger' do
-      options = {}
-      options['expression'] = trigger_expression
-      (zrc.triggers.get_id(options)).to_i.should >= 0
-    end
-
-    it 'throws exception if trying to get id of a non-existing trigger' do
-      options = {}
-      options['expression'] = non_existing_trigger_expression
-      expect { zrc.triggers.get_id(options) }.to raise_error(Triggers::NonExistingTrigger)
-    end
-
-    it 'returns true if a trigger exists' do
-      options = {}
-      options['expression'] = trigger_expression
-      zrc.triggers.exists?(options).should be_true
-    end
-
-    it 'returns false if a trigger does not exist' do
-      options = {}
-      options['expression'] = non_existing_trigger_expression
-      zrc.triggers.exists?(options).should be_false
+      it 'returns false if a trigger does not exist' do
+        options = {}
+        options['expression'] = non_existing_trigger_expression
+        zrc.triggers.exists?(options).should be_false
+      end
     end
   end
 
