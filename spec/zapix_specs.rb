@@ -76,7 +76,7 @@ describe ZabbixAPI do
       hostgroup_id = zrc.hostgroups.get_id(hostgroup_with_hosts)
       example_host = Host.new
       example_host.add_name(host)
-      example_host.add_interfaces(create_interface)
+      example_host.add_interfaces(create_interface.to_hash)
       example_host.add_group_ids(hostgroup_id)
       example_host.add_template_ids(zrc.templates.get_id(template_1), zrc.templates.get_id(template_2))
       example_host.add_macros({'macro' => '{$TESTMACRO}', 'value' => 'test123'})
@@ -97,7 +97,7 @@ describe ZabbixAPI do
       hostgroup_id = zrc.hostgroups.get_id(hostgroup_with_hosts)
       example_host = Host.new
       example_host.add_name(host)
-      example_host.add_interfaces(create_interface)
+      example_host.add_interfaces(create_interface.to_hash)
       example_host.add_macros({'macro' => '{$TESTMACRO}', 'value' => 'test123'})
       example_host.add_group_ids(hostgroup_id)
       example_host.add_template_ids(zrc.templates.get_id(template_1), zrc.templates.get_id(template_2))
@@ -159,7 +159,7 @@ describe ZabbixAPI do
 
       it 'throws an exception if updating a host without specifying the hostname' do
         example_host = Host.new
-        example_host.add_interfaces(create_interface)
+        example_host.add_interfaces(create_interface.to_hash)
         expect { zrc.hosts.create_or_update(example_host.to_hash) }.to raise_error(Hosts::EmptyHostname)
       end
 
@@ -173,7 +173,7 @@ describe ZabbixAPI do
         result = zrc.hosts.unlink_and_clear_templates(options)
         # now it should be safe to update the interface of the host
         example_host = Host.new
-        example_host.add_interfaces(create_interface)
+        example_host.add_interfaces(create_interface.to_hash)
         example_host.add_name(host)
         zrc.hosts.create_or_update(example_host.to_hash)
       end
@@ -295,12 +295,51 @@ describe ZabbixAPI do
         zrc.triggers.exists?(options).should be_false
       end
     end
+
+    describe 'hostinterfaces' do
+      it 'creates jmx interface for host' do
+        jmx_iface = create_jmx_interface
+        jmx_iface_hash = jmx_iface.to_hash
+        jmx_iface_hash['hostid'] = zrc.hosts.get_id(host)
+        zrc.hostinterfaces.create(jmx_iface_hash)
+        zrc.hostinterfaces.exists?(jmx_iface_hash).should be_true
+      end
+
+      it 'check if interface exists for host' do
+        options = {}
+        options['hostid'] = zrc.hosts.get_id(host)
+        options['port'] = 10050
+        options['type'] = 1
+        zrc.hostinterfaces.exists?(options).should be_true
+
+        options['port'] = 9003
+        options['type'] = 4
+        zrc.hostinterfaces.exists?(options).should be_false
+      end
+
+      it 'gets interface id' do
+        pending 'Not implemented'
+      end
+
+      it 'deletes an interface' do
+        pending 'Not implemented'
+      end
+    end
   end
 
   def create_interface
     Interface.new(
-      'ip' => "127.0.0.#{random_int}",
-      'dns' => "#{random_string}.our-cloud.de").to_hash
+      'ip'  => random_local_ip,
+      'dns' => random_domain)
+  end
+
+  def create_jmx_interface
+    Interface.new(
+      'ip'  => random_local_ip,
+      'dns' => random_domain,
+      'type' => 4, # JMX
+      'main' => 1, # not default
+      'port' => 9003)
   end
 
   def random_string
@@ -309,6 +348,14 @@ describe ZabbixAPI do
 
   def random_int
     rand(64)
+  end
+
+  def random_local_ip
+    "127.0.0.#{random_int}"
+  end
+
+  def random_domain
+    "#{random_string}.our-cloud.de"
   end
 
 end

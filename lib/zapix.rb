@@ -38,4 +38,8 @@ class ZabbixAPI
     @triggers ||= Triggers.new(@client)
   end
 
+  def hostinterfaces
+    @hostinterfaces ||= Hostinterfaces.new(@client)
+  end
+
 end
