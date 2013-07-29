@@ -26,6 +26,7 @@ non_existing_usergroup = 'Smurfs'
 existing_user = 'Admin'
 non_existing_user = 'Tweegle'
 test_user = 'Jim'
+test_action = 'Test Action'
 
 describe ZabbixAPI do
 
@@ -335,6 +336,52 @@ existing_action_name
     end
 
     describe 'actions' do
+      before(:each) do
+        options = {}
+        usergroup_options = {}
+        usergroup_options['name'] = existing_usergroup
+        options['name'] = test_action
+        options['eventsource'] = 0
+        options['evaltype'] = 1 # AND
+        options['status'] = 1 # Disabled
+        options['esc_period'] = 3600
+        options['def_shortdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}'
+        options['def_longdata'] = "{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"
+        options['conditions'] = [{
+          'conditiontype' => 0, # Hostgroup
+          'operator'      => 0, # =
+          'value' => zrc.hostgroups.get_id('Templates')
+        },
+        # not in maintenance
+        {
+          'conditiontype' => 16, # Maintenance
+          'operator'      => 7,  # not in
+          'value'         => 'maintenance'
+        }]
+        options['operations'] = [{
+          'operationtype' => 0,
+          'esc_period'     => 0,
+          'esc_step_from'  => 1,
+          'esc_step_to'    => 1,
+          'evaltype'       => 0,
+          'opmessage_grp'  => [{
+            'usrgrpid' => zrc.usergroups.get_id(usergroup_options)
+          }],
+          'opmessage' => {
+            'default_msg' => 1,
+            'mediatypeid' => 1
+          }
+        }]
+        zrc.actions.create(options)
+      end
+
+      after(:each) do
+        options = {}
+        options['name'] = test_action
+        action_id = zrc.actions.get_id(options)
+        zrc.actions.delete(action_id)
+      end
+
       it 'checks if an action exists' do
         options = {}
         options['name'] = existing_action_name
@@ -344,42 +391,10 @@ existing_action_name
       end
 
       it 'gets an id of an action' do
-        pending 'Not implemented'
-      end
-
-      it 'creates a default action' do
-        pending 'Not implemented'
         options = {}
-        options['name'] = 'Test Action'
-        options['eventsource'] = 0
-        options['evaltype'] = 0
-        options['status'] = 1
-        options['esc_period'] = 3600
-        options['def_shortdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}'
-        options['def_longdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}'
-        options['conditions'] = [{
-          'conditiontype' => 1,
-          'operator'      => 0,
-          'value'         => zrc.hostgroups.get_id(hostgroup_with_hosts)
-        }]
-        options['operations'] = [{
-          'operationstype' => 0,
-          'esc_period'     => 0,
-          'esc_step_from'  => 1,
-          'esc_step_to'    => 2,
-          'evaltype'       => 0,
-          'opmessage_grp'  => [{
-            'usrgrpid' => 7
-          }],
-          'opmessage' => {
-            'default_msg' => 1,
-            'mediatypeid' => 1
-          }
-        }]
-      end
-
-      it 'deletes an action' do
-        pending 'Not implemented'
+        options['name'] = test_action
+        result = zrc.actions.get_id(options)
+        (result.to_i).should >= 0
       end
     end
 
