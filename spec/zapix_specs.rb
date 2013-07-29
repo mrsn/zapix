@@ -18,6 +18,14 @@ scenario = 'scenario'
 trigger_description = 'Webpage failed on {HOST.NAME}'
 trigger_expression = "{#{host}:web.test.fail[#{scenario}].max(#3)}#0"
 non_existing_trigger_expression = '{vfs.file.cksum[/etc/passwd].diff(0)}>0'
+existing_action_name = 'Report problems to Zabbix administrators'
+non_existing_action_name = 'No action defined'
+test_usergroup = 'Operation managers test'
+existing_usergroup = 'Admins'
+non_existing_usergroup = 'Smurfs'
+existing_user = 'Admin'
+non_existing_user = 'Tweegle'
+test_user = 'Jim'
 
 describe ZabbixAPI do
 
@@ -69,7 +77,7 @@ describe ZabbixAPI do
       (zrc.hostgroups.get_all).should include(hostgroup, another_hostgroup)
     end
   end
-
+existing_action_name
   context 'complex hostgroup consisting hosts' do
     before(:each) do
       zrc.hostgroups.create(hostgroup_with_hosts)
@@ -121,7 +129,7 @@ describe ZabbixAPI do
       options = {}
       options['description'] = trigger_description
       options['expression'] = trigger_expression
-      options['priority'] = '2' # 2 means Warning
+      options['priority'] = 2 # 2 means Warning
       zrc.triggers.create(options)
       
     end
@@ -252,7 +260,7 @@ describe ZabbixAPI do
       end
 
       it 'deletes a web scenario' do
-        pending 'Not ready'
+        pending 'Not implemended'
         options = {}
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
@@ -325,6 +333,138 @@ describe ZabbixAPI do
         pending 'Not implemented'
       end
     end
+
+    describe 'actions' do
+      it 'checks if an action exists' do
+        options = {}
+        options['name'] = existing_action_name
+        zrc.actions.exists?(options).should be_true
+        options['name'] = non_existing_action_name
+        zrc.actions.exists?(options).should be_false
+      end
+
+      it 'gets an id of an action' do
+        pending 'Not implemented'
+      end
+
+      it 'creates a default action' do
+        pending 'Not implemented'
+        options = {}
+        options['name'] = 'Test Action'
+        options['eventsource'] = 0
+        options['evaltype'] = 0
+        options['status'] = 1
+        options['esc_period'] = 3600
+        options['def_shortdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}'
+        options['def_longdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}'
+        options['conditions'] = [{
+          'conditiontype' => 1,
+          'operator'      => 0,
+          'value'         => zrc.hostgroups.get_id(hostgroup_with_hosts)
+        }]
+        options['operations'] = [{
+          'operationstype' => 0,
+          'esc_period'     => 0,
+          'esc_step_from'  => 1,
+          'esc_step_to'    => 2,
+          'evaltype'       => 0,
+          'opmessage_grp'  => [{
+            'usrgrpid' => 7
+          }],
+          'opmessage' => {
+            'default_msg' => 1,
+            'mediatypeid' => 1
+          }
+        }]
+      end
+
+      it 'deletes an action' do
+        pending 'Not implemented'
+      end
+    end
+
+    describe 'usergroups' do
+      before(:each) do
+        options = {}
+        options['name'] = test_usergroup
+        options['rights'] = {
+          'permission' => 3,
+          'id' => zrc.hostgroups.get_id(hostgroup_with_hosts)
+        }
+        zrc.usergroups.create(options)
+      end
+
+      after(:each) do
+        options = {}
+        options['name'] = test_usergroup
+        usergroup_id = zrc.usergroups.get_id(options)
+        zrc.usergroups.delete(usergroup_id)
+      end
+
+      it 'checks if a usergroup exists' do
+        options = {}
+        options['name'] = existing_usergroup
+        zrc.usergroups.exists?(options).should be_true
+        options['name'] = non_existing_usergroup
+        zrc.usergroups.exists?(options).should be_false
+      end
+
+      it 'gets the id of a usergroup by name' do
+        options = {}
+        options['name'] = test_usergroup
+        result = zrc.usergroups.get_id(options)
+        (result.to_i).should >= 0
+        options['name'] = non_existing_usergroup
+        expect { zrc.usergroups.get_id(options) }.to raise_error(Usergroups::NonExistingUsergroup)
+      end
+    end
+
+    describe 'user' do
+      before(:each) do
+        user_options = {}
+        group_options = {}
+        group_options['name'] = existing_usergroup
+        group_id = zrc.usergroups.get_id(group_options)
+        user_options['alias'] = test_user
+        user_options['passwd'] = random_string
+        user_options['usrgrps'] = [{
+          'usrgrpid' => group_id
+        }]
+
+        user_options['user_medias'] = [{
+          'mediatypeid' => 1,
+          'sendto' => 'support@company.com',
+          'active' => 0,
+          'severity' => 63,
+          'period' => '1-7,00:00-24:00'
+        }]
+        zrc.users.create(user_options)
+      end
+
+      after(:each) do
+        user_options = {}
+        user_options['alias'] = test_user
+        user_options['userid'] = zrc.users.get_id(user_options)
+        zrc.users.delete(user_options)
+      end
+
+      it 'checks if a user exists' do
+        options = {}
+        options['alias'] = test_user
+        zrc.users.exists?(options).should be_true
+        options['alias'] = non_existing_user
+        zrc.users.exists?(options).should be_false
+      end
+
+      it 'gets the id of a user' do
+        options = {}
+        options['alias'] = test_user
+        result = zrc.users.get_id(options)
+        (result.to_i).should >= 0
+        options['alias'] = non_existing_user
+        expect { zrc.users.get_id(options) }.to raise_error(Users::NonExistingUser)
+      end
+    end
   end
 
   def create_interface
@@ -338,7 +478,7 @@ describe ZabbixAPI do
       'ip'  => random_local_ip,
       'dns' => random_domain,
       'type' => 4, # JMX
-      'main' => 1, # not default
+      'main' => 1, # default jmx interface
       'port' => 9003)
   end
 

@@ -42,4 +42,16 @@ class ZabbixAPI
     @hostinterfaces ||= Hostinterfaces.new(@client)
   end
 
+  def actions
+    @actions ||= Actions.new(@client)
+  end
+
+  def usergroups
+    @usergroups ||= Usergroups.new(@client)
+  end
+
+  def users
+    @users ||= Users.new(@client)
+  end
+
 end
