@@ -1,18 +1,18 @@
-require_relative 'basic'
+require_relative 'base'
 
-class Usergroups < Basic
+class Usergroups < Base
 
   def create(options)
-    @client.usergroup_create(options) unless exists?(options)
+    client.usergroup_create(options) unless exists?(options)
   end
 
   def exists?(options)
-    @client.usergroup_exists(options)
+    client.usergroup_exists(options)
   end
 
   def get_id(options)
     if(exists?(options))
-      result = @client.usergroup_get({
+      result = client.usergroup_get({
         'filter' => {'name' => options['name']}})
       result.first['usrgrpid']
     else
@@ -21,7 +21,7 @@ class Usergroups < Basic
   end
 
   def delete(*group_ids)
-    @client.usergroup_delete(group_ids)
+    client.usergroup_delete(group_ids)
   end
 
   class NonExistingUsergroup < StandardError; end

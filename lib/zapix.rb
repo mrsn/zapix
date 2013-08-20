@@ -2,7 +2,7 @@ require 'zapix/version'
 require_relative 'zapix/zabbix_rpc_client'
 
 class ZabbixAPI
-  attr :client
+  attr_reader :client
 
   def self.connect(options = {})
     new(options)
@@ -15,43 +15,43 @@ class ZabbixAPI
   end
 
   def hostgroups
-    @hostgroups ||= HostGroups.new(@client)
+    @hostgroups ||= HostGroups.new(client)
   end
 
   def hosts
-    @hosts ||= Hosts.new(@client)
+    @hosts ||= Hosts.new(client)
   end
 
   def templates
-    @templates ||= Templates.new(@client)
+    @templates ||= Templates.new(client)
   end
 
   def applications
-    @applications ||= Applications.new(@client)
+    @applications ||= Applications.new(client)
   end
 
   def scenarios
-    @scenarios ||= Scenarios.new(@client)
+    @scenarios ||= Scenarios.new(client)
   end
 
   def triggers
-    @triggers ||= Triggers.new(@client)
+    @triggers ||= Triggers.new(client)
   end
 
   def hostinterfaces
-    @hostinterfaces ||= Hostinterfaces.new(@client)
+    @hostinterfaces ||= Hostinterfaces.new(client)
   end
 
   def actions
-    @actions ||= Actions.new(@client)
+    @actions ||= Actions.new(client)
   end
 
   def usergroups
-    @usergroups ||= Usergroups.new(@client)
+    @usergroups ||= Usergroups.new(client)
   end
 
   def users
-    @users ||= Users.new(@client)
+    @users ||= Users.new(client)
   end
 
 end

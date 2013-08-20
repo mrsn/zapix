@@ -1,20 +1,20 @@
-require_relative 'basic'
-class Triggers < Basic
+require_relative 'base'
+class Triggers < Base
 
   def exists?(options)
-    @client.trigger_exists(options)
+    client.trigger_exists(options)
   end
 
   def create(options)
-    @client.trigger_create(options) unless exists?(options)
+    client.trigger_create(options) unless exists?(options)
   end
 
   def delete(*trigger_ids)
-    @client.trigger_delete(trigger_ids)
+    client.trigger_delete(trigger_ids)
   end
 
   def get_id(options)
-    result = @client.trigger_get({'output' => 'extend',
+    result = client.trigger_get({'output' => 'extend',
       'expandExpression' => true})
     id = extract_id(result, options['expression'])
     unless id.nil?
@@ -26,7 +26,7 @@ class Triggers < Basic
 
   class NonExistingTrigger < StandardError; end
 
-private
+  private
 
   def extract_id(triggers, expression)
     result = nil

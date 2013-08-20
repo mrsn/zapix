@@ -1,18 +1,18 @@
-require_relative 'basic'
+require_relative 'base'
 
-class Applications < Basic
+class Applications < Base
 
   def create(options)
-    @client.application_create(options) unless exists?(options)
+    client.application_create(options) unless exists?(options)
   end
 
   def exists?(options)
-    @client.application_exists(options)
+    client.application_exists(options)
   end
 
   def get_id(options)
     if exists?(options)
-      @client.application_get({
+      client.application_get({
         'filter' => {'name' => options['name'],
         'hostid' => options['hostid']}}).first['applicationid']
     else
