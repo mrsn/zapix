@@ -12,6 +12,7 @@ another_hostgroup = 'anotherhostgroup'
 hostgroup_with_hosts = 'withhosts'
 template_1 = 'Template OS Linux'
 template_2 = 'Template App MySQL'
+templates_hostgroup = 'Templates'
 application = 'web scenarios'
 host = 'hostname'
 scenario = 'scenario'
@@ -203,6 +204,14 @@ existing_action_name
         options['host_id'] = host_id
         options['macros'] = [{'macro' => '{$TESTMACRO}', 'value' => 'this is only a test macro'}]
         zrc.hosts.update_macros(options)
+      end
+
+      it 'creates a template' do
+        template_name = 'Template Tomcat'
+        options = {'host' => template_name}
+        options['groups'] = zrc.hostgroups.get_id(templates_hostgroup)
+        zrc.templates.create(options)
+        zrc.templates.exists?(template_name).should be_true
       end
     end
 

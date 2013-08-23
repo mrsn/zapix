@@ -5,6 +5,10 @@ class Templates < Base
     client.template_exists({'name' => name})
   end
 
+  def create(options)
+    client.template_create(options) unless exists?(options['host'])
+  end
+
   def get_id(name)
     if(exists?(name))
       client.template_get({'filter' => {'name' => name}}).first['templateid']
