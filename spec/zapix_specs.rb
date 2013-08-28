@@ -79,7 +79,7 @@ describe ZabbixAPI do
       (zrc.hostgroups.get_all).should include(hostgroup, another_hostgroup)
     end
   end
-existing_action_name
+
   context 'complex hostgroup consisting hosts' do
     before(:each) do
       zrc.hostgroups.create(hostgroup_with_hosts)
