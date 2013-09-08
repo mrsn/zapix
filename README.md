@@ -236,9 +236,70 @@ trigger_id = zrc.triggers.get_id({
 zrc.triggers.delete(trigger_id)
 ```
 
-### User Groups Operations
+### Usergroups Operations
+
+#### Checking if a usergroup exists
+```ruby
+  zrc.usergroups.exists?({
+  'name' => 'test_usergroup'
+})
+```
+#### Geting the id of a usergroup
+```ruby
+zrc.usergroups.get_id({
+  'name' = 'test_usergroup'
+})
+```
+
+#### Creating a usergroup
+```ruby
+options = Hash.new
+options['name'] = 'test_usergroup'
+options['rights'] = {
+  'permission' => 3,
+  'id' => zrc.hostgroups.get_id('test_hostgroup')
+}
+zrc.usergroups.create(options)
+```
+
+#### Deleting a user group
+```ruby
+usergroup_id = zrc.usergroups.get_id({'name' => 'test_usergroup'})
+zrc.usergroups.delete(usergroup_id)
+```
 
 ### User Operations
+#### Checking if a user exists
+```ruby
+zrc.users.exists?({'alias' => 'max'})
+```
+
+#### Getting the id of a user
+```ruby
+zrc.users.get_id?({'alias' => 'max'})
+```
+
+#### Creating a user
+```ruby
+group_id = zrc.usergroups.get_id({'name' => 'test_usergroup'})
+user_options = Hash.new
+
+user_options['alias']   = 'igor'
+user_options['passwd']  = 'geheim'
+user_options['usrgrps'] = [{
+  'usrgrpid' => group_id
+}]
+
+user_options['user_medias'] = [{
+  'mediatypeid' => 1,
+  'sendto' => 'support@company.com',
+  'active' => 0,
+  'severity' => 63,
+  'period' => '1-7,00:00-24:00'
+}]
+
+zrc.users.create(user_options)
+```
 
 ### Actions Operations
 
