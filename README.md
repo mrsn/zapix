@@ -157,6 +157,16 @@ zrc.applications.create({
 })
 ```
 
+### Trigger Operations
+
+### Web Scenario Operations
+
+### User Operations
+
+### User Groups Operations
+
+### Actions Operations
+
 ## Contributing
 
 1. Fork it
