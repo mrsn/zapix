@@ -133,7 +133,6 @@ describe ZabbixAPI do
       options['expression'] = trigger_expression
       options['priority'] = 2 # 2 means Warning
       zrc.triggers.create(options)
-      
     end
 
     after(:each) do
@@ -259,7 +258,8 @@ describe ZabbixAPI do
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
         zrc.scenarios.exists?(options).should be_true
-        zrc.scenarios.get_id(options)
+        result = zrc.scenarios.get_id(options)
+        (result.to_i).should >= 0
       end
 
       it 'returns false if a web scenario does not exist' do

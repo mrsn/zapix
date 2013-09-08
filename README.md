@@ -58,7 +58,7 @@ Note that deleting a hostgroups with attached hosts also deletes the hosts.
 zrc.hostgroups.delete('test_hostgroup')
 ```
 
-#### Getting an id of a hostgroup
+#### Getting the id of a hostgroup
 ```ruby
 zrc.hostgroups.get_id('test_hostgroup')
 ```
@@ -70,7 +70,7 @@ zrc.hostgroups.get_all
 
 ### Host Operations
 
-#### Getting host id
+#### Getting the id of a host
 ```ruby
 zrc.hosts.get_id('test_host')
 ```
@@ -128,7 +128,7 @@ zrc.hosts.delete('test_host')
 zrc.templates.exists?('test_template')
 ```
 
-#### Getting template id
+#### Getting the id of a template
 ```ruby
 zrc.templates.get_id('test_template')
 ```
@@ -140,7 +140,7 @@ zrc.templates.get_templates_for_host(zrc.hosts.get_id('test_host'))
 
 ### Application Operations
 
-#### Getting an application id
+#### Getting the id of an application
 Note that an application always belogs to a host.
 ```ruby
 zrc.applications.get_id({
@@ -157,13 +157,88 @@ zrc.applications.create({
 })
 ```
 
+### Web Scenario Operations
+Note that a web scenario needs a host and an application in zabbix 2.0.6. This is
+going to change in the next versions of zabbix. When creating scenarios it also
+makes sense to create triggers for them.
+
+#### Checking if a scenario exists
+```ruby
+zrc.scenarios.exists?({
+  'name'   => 'test_scenario'
+  'hostid' => zrc.hosts.get_id('test_host')
+})
+```
+
+#### Getting the id of a scenario
+```ruby
+zrc.scenarios.get_id({
+  'name'   => 'test_scenario'
+  'hostid' => zrc.hosts.get_id('test_host')
+})
+```
+
+#### Creating a scenario
+```ruby
+
+zrc.applications.create({
+  'name'   => 'test_app',
+  'hostid' => zrc.hosts.get_id('test_name')
+})
+
+webcheck_options = Hash.new
+webcheck_options['hostid'] = zrc.hosts.get_id('host')
+webcheck_options['name'] = 'my first scenario'
+webcheck_options['applicationid'] = zrc.applications.get_id('test_app')
+webcheck_options['steps'] = [{'name' => 'Homepage', 'url' => 'm.test.de', 'status_codes' => 200, 'no' => 1}]
+zrc.scenarios.create(webcheck_options)
+```
+
+#### Deleting a scenario
+```ruby
+zrc.scenarios.delete({
+  'name'   => 'test_scenario'
+  'hostid' => zrc.hosts.get_id('test_host')
+})
+```
+
 ### Trigger Operations
 
-### Web Scenario Operations
+#### Checking if a trigger exists
+```ruby
+zrc.triggers.exists?({
+  'expression' => "{test_host:web.test.fail[test_scenario].max(#3)}#0"
+})
+```
 
-### User Operations
+### Getting the id of a trigger
+```ruby
+zrc.triggers.get_id({
+  'expression' => "{test_host:web.test.fail[test_scenario].max(#3)}#0"
+})
+```
+
+### Creating a trigger
+```ruby
+options = Hash.new
+options['description'] = 'Webpage failed on {HOST.NAME}'
+options['expression'] = "{test_host:web.test.fail[test_scenario].max(#3)}#0"
+options['priority'] = 2 # 2 means Warning
+zrc.triggers.create(options)
+```
+
+### Deleting a trigger
+```ruby
+trigger_id = zrc.triggers.get_id({
+  'expression' => "{test_host:web.test.fail[test_scenario].max(#3)}#0"
+})
+
+zrc.triggers.delete(trigger_id)
+```
 
 ### User Groups Operations
+
+### User Operations
 
 ### Actions Operations
 
