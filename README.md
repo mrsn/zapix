@@ -1,6 +1,7 @@
 # Zapix
 
 Zapix is a tool which makes the communication with the zabbix's api simple.
+
 If you need a more detailed information of how to use zapix see the specs.
 
 ## Installation
