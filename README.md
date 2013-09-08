@@ -31,57 +31,55 @@ zrc = ZabbixAPI.connect(
 )
 ```
 ### Hostgroup Operations
-* creating a hostgroup
+#### creating a hostgroup
 ```ruby
 zrc.hostgroups.create('test_hostgroup')
 ```
 
-* Checking if a hostgroup exists
+#### Checking if a hostgroup exists
 ```ruby
 zrc.hostgroups.exists?('test_hostgroup')
 ```
 
-* Checking if a hostgroup has any attached hosts
+#### Checking if a hostgroup has any attached hosts
 ```ruby
 zrc.hostgroups.any_hosts?('test_hostgroup')
 ```
 
-* Getting all host ids of hosts belonging to a hostgroup
+#### Getting all host ids of hosts belonging to a hostgroup
 ```ruby
 zrc.hostgroups.get_host_ids_of('test_hostgroup')
 ```
 
-* Deleting a hostgroup
+#### Deleting a hostgroup
 Note that deleting a hostgroups with attached hosts also deletes the hosts.
 
 ```ruby
 zrc.hostgroups.delete('test_hostgroup')
 ```
 
-* Getting an id of a hostgroup
+#### Getting an id of a hostgroup
 ```ruby
 zrc.hostgroups.get_id('test_hostgroup')
 ```
 
-* Getting all hostgroups
+#### Getting all hostgroups
 ```ruby
 zrc.hostgroups.get_all
 ```
 
 ### Host Operations
 
-* Getting host id
+#### Getting host id
 ```ruby
 zrc.hosts.get_id('test_host')
 ```
-* Getting Templates for a host
+#### Getting Templates for a host
 ```ruby
 zrc.templates.get_templates_for_host(zrc.hosts.get_id('test_host'))
 ```
-
-* Creating a host
+#### Creating a host
 Note that in zabbix host cannot exists on its own, it always needs a hostgroup.
-
 ```ruby 
 hostgroup_id = zrc.hostgroups.get_id('test_hostgroup')
 
@@ -110,20 +108,6 @@ example_host.add_group_ids(hostgroup_id)
 example_host.add_template_ids(template_1, template_2)
 zrc.hosts.create(example_host.to_hash)
 ```
-
-      
-      example_host.add_name(host)
-      example_host.add_interfaces(create_interface.to_hash)
-      example_host.add_macros({'macro' => '{$TESTMACRO}', 'value' => 'test123'})
-      example_host.add_group_ids(hostgroup_id)
-      example_host.add_template_ids(zrc.templates.get_id(template_1), zrc.templates.get_id(template_2))
-      zrc.hosts.create_or_update(example_host.to_hash)
-
-
-
-
-
-
 
 ## Contributing
 
