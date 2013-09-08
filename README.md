@@ -276,7 +276,7 @@ zrc.users.exists?({'alias' => 'max'})
 
 #### Getting the id of a user
 ```ruby
-zrc.users.get_id?({'alias' => 'max'})
+zrc.users.get_id({'alias' => 'max'})
 ```
 
 #### Creating a user
