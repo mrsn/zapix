@@ -31,7 +31,7 @@ zrc = ZabbixAPI.connect(
 )
 ```
 ### Hostgroup Operations
-#### creating a hostgroup
+#### Creating a hostgroup
 ```ruby
 zrc.hostgroups.create('test_hostgroup')
 ```
