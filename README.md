@@ -1,6 +1,7 @@
 # Zapix
 
 Zapix is a tool which makes the communication with the zabbix's api simple.
+If you need a more detailed information of how to use zapix see the specs.
 
 ## Installation
 
@@ -19,7 +20,8 @@ Or install it yourself as:
 ## Usage
 
 ### Remote client
-First we need the zapix remote client:
+First we need the zapix remote client. Feel free to
+disable the debug mode if you find it annoying.
 
 ```ruby
 require 'zapix'
@@ -30,6 +32,17 @@ zrc = ZabbixAPI.connect(
   :debug => true
 )
 ```
+
+### Remote client and the tests
+In order to run the tests you need a running zabbix server. 
+You can get one if you run the test-kitchen tests for zabbix.
+
+These environment variables also need to be set:
+
+    ZABBIX_API_URL
+    ZABBIX_API_LOGIN
+    ZABBIX_API_PASSWORD
+
 ### Hostgroup Operations
 #### Creating a hostgroup
 ```ruby
@@ -303,10 +316,61 @@ zrc.users.create(user_options)
 
 ### Actions Operations
 
+#### Checking if an action exists
+```ruby
+  zrc.actions.exists?({'name' => 'Report problems to Zabbix administrators'})
+```
+
+#### Getting the id of an action
+```ruby
+  zrc.actions.get_id({'name' => 'Report problems to Zabbix administrators'})
+```
+
+#### Creating an action
+```ruby
+  usergroup_options = Hash.new({'name' = 'test_usergroup'})
+  action_options = Hash.new
+  action_options['name'] = 'Report problems to Zabbix administrators'
+  action_options['eventsource'] = 0
+  action_options['evaltype'] = 1 # AND
+  action_options['status'] = 1 # Disabled
+  action_options['esc_period'] = 3600
+  action_options['def_shortdata'] = '{TRIGGER.NAME}: {TRIGGER.STATUS}'
+  action_options['def_longdata'] = "{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}"
+  action_options['conditions'] = [{
+    'conditiontype' => 0, # Hostgroup
+    'operator'      => 0, # =
+    'value' => zrc.hostgroups.get_id('Templates')
+   },
+   # not in maintenance
+   {
+     'conditiontype' => 16, # Maintenance
+     'operator'      => 7,  # not in
+     'value'         => 'maintenance'
+   }]
+
+  action_options['operations'] = [{
+    'operationtype' => 0,
+    'esc_period'     => 0,
+    'esc_step_from'  => 1,
+    'esc_step_to'    => 1,
+    'evaltype'       => 0,
+    'opmessage_grp'  => [{
+      'usrgrpid' => zrc.usergroups.get_id(usergroup_options)
+    }],
+    'opmessage' => {
+      'default_msg' => 1,
+      'mediatypeid' => 1
+    }
+  }]
+  zrc.actions.create(action_options)
+```
+
 ## Contributing
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
+3. Don't forget to write tests
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
