@@ -63,7 +63,7 @@ zrc.hostgroups.delete('test_hostgroup')
 zrc.hostgroups.get_id('test_hostgroup')
 ```
 
-#### Getting all hostgroups
+#### Getting all hostgroups names
 ```ruby
 zrc.hostgroups.get_all
 ```
@@ -74,10 +74,17 @@ zrc.hostgroups.get_all
 ```ruby
 zrc.hosts.get_id('test_host')
 ```
-#### Getting Templates for a host
+
+#### Checking if a host exists
 ```ruby
-zrc.templates.get_templates_for_host(zrc.hosts.get_id('test_host'))
+zrc.hosts.exists?('test_host')
 ```
+
+#### Getting all host names
+```ruby
+zrc.hosts.get_all
+```
+
 #### Creating a host
 Note that in zabbix host cannot exists on its own, it always needs a hostgroup.
 ```ruby 
@@ -107,6 +114,47 @@ example_host.add_macros({'macro' => '{$TESTMACRO}', 'value' => 'test123'})
 example_host.add_group_ids(hostgroup_id)
 example_host.add_template_ids(template_1, template_2)
 zrc.hosts.create(example_host.to_hash)
+```
+
+#### Deleting a host
+```ruby
+zrc.hosts.delete('test_host')
+```
+
+### Template Operations
+
+#### Checking if a template exists
+```ruby
+zrc.templates.exists?('test_template')
+```
+
+#### Getting template id
+```ruby
+zrc.templates.get_id('test_template')
+```
+
+#### Getting all templates for a host
+```ruby
+zrc.templates.get_templates_for_host(zrc.hosts.get_id('test_host'))
+```
+
+### Application Operations
+
+#### Getting an application id
+Note that an application always belogs to a host.
+```ruby
+zrc.applications.get_id({
+  'name'   => 'test_app',
+  'hostid' => zrc.hosts.get_id('test_name')
+})
+```
+
+#### Creating an application for host
+```ruby
+zrc.applications.create({
+  'name'   => 'test_application'
+  'hostid' => zrc.hosts.get_id('test_host')
+})
 ```
 
 ## Contributing
