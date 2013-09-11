@@ -23,4 +23,13 @@ class Scenarios < Base
 
     result.to_i >= 1 ? true : false
   end
+
+  def get_all
+    scenarios = client.webcheck_get({'output' => 'extend'})
+    names = extract_names(scenarios)
+  end
+
+  def extract_names(scenarios)
+    scenarios.map {|scenario| scenario['name']} 
+  end
 end

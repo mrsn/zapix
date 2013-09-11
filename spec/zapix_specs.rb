@@ -253,6 +253,11 @@ describe ZabbixAPI do
         zrc.scenarios.exists?(options).should be_true
       end
 
+      it 'returns all web scenarios' do
+        options = {}
+        (zrc.scenarios.get_all).should include(scenario)
+      end
+
       it 'gets the id of a web scenario' do
         options = {}
         options['name'] = scenario
