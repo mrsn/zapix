@@ -8,7 +8,7 @@ If you need a more detailed information of how to use zapix see the specs.
 
 Add this line to your application's Gemfile:
 
-    gem 'zapix'
+    gem 'zapix', '0.1.7'
 
 And then execute:
 
@@ -211,7 +211,7 @@ zrc.scenarios.create(webcheck_options)
 #### Deleting a scenario
 ```ruby
 zrc.scenarios.delete({
-  'name'   => 'test_scenario'
+  'name'   => 'test_scenario',
   'hostid' => zrc.hosts.get_id('test_host')
 })
 ```
