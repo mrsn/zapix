@@ -21,28 +21,20 @@ Or install it with gem:
 ## Usage
 
 ### Remote client
-First we need the zapix remote client. Feel free to
+First create a remote client. Feel free to
 disable the debug mode if you find it annoying.
 
 ```ruby
 require 'zapix'
 zrc = ZabbixAPI.connect(
-  :service_url => http://ourzabbix.server-cp,
+  :service_url => http://zabbix-server.foo,
   :username => guybrush,
   :password => threepwood,
   :debug => true
 )
 ```
 
-### Remote client and the tests
-In order to run the tests you need a running zabbix server. 
-You can get one if you run the test-kitchen tests for zabbix.
-
-These environment variables also need to be set:
-
-    ZABBIX_API_URL
-    ZABBIX_API_LOGIN
-    ZABBIX_API_PASSWORD
+## Functionality
 
 ### Hostgroup Operations
 #### Creating a hostgroup
@@ -366,6 +358,18 @@ zrc.users.create(user_options)
   }]
   zrc.actions.create(action_options)
 ```
+
+### Remote client and tests
+In order to run the rspec tests you need a running zabbix test server.
+
+These environment variables also need to be set:
+
+    ZABBIX_API_URL
+    ZABBIX_API_LOGIN
+    ZABBIX_API_PASSWORD
+
+### TODO
+Open source the docker-compose setup of the whole zabbix installation.
 
 ## Contributing
 
