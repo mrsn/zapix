@@ -179,7 +179,7 @@ makes sense to create triggers for them.
 #### Checking if a scenario exists
 ```ruby
 zrc.scenarios.exists?({
-  'name'   => 'test_scenario'
+  'name'   => 'test_scenario',
   'hostid' => zrc.hosts.get_id('test_host')
 })
 ```
