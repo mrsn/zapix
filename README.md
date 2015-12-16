@@ -27,7 +27,7 @@ disable the debug mode if you find it annoying.
 ```ruby
 require 'zapix'
 zrc = ZabbixAPI.connect(
-  :service_url => http://ourzabbix.server-cp,,
+  :service_url => http://ourzabbix.server-cp,
   :username => guybrush,
   :password => threepwood,
   :debug => true
