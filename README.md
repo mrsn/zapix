@@ -368,7 +368,7 @@ These environment variables also need to be set:
     ZABBIX_API_LOGIN
     ZABBIX_API_PASSWORD
 
-### TODO
+### TODOs
 Open source the docker-compose setup of the whole zabbix installation.
 
 ## Contributing
