@@ -7,11 +7,11 @@ zrc = ZabbixAPI.connect(
   :debug => true
   )
 
-hostgroup = 'hostgroup'
+hostgroup = 'hostgroup123'
 another_hostgroup = 'anotherhostgroup'
 hostgroup_with_hosts = 'withhosts'
 template_1 = 'Template OS Linux'
-template_2 = 'Template App MySQL'
+template_2 = 'Template App POP Service'
 templates_hostgroup = 'Templates'
 application = 'web scenarios'
 host = 'hostname'
@@ -50,12 +50,12 @@ describe ZabbixAPI do
 
     it 'returns false if hostgroup does not exist' do
       result = zrc.hostgroups.exists?('nonexisting')
-      result.should be_false
+      result.should be false
     end
 
     it 'succeeds if a hostgroup exist' do
       result = zrc.hostgroups.exists?(hostgroup)
-      result.should be_true
+      result.should be true
     end
 
     it 'returns hostgroup id' do
@@ -72,14 +72,14 @@ describe ZabbixAPI do
     end
 
     it 'returns false if a hostgroup has no attached hosts' do
-      zrc.hostgroups.any_hosts?(hostgroup).should be_false
+      zrc.hostgroups.any_hosts?(hostgroup).should be_falsey
     end
 
     it 'returns all hostgroups' do
       (zrc.hostgroups.get_all).should include(hostgroup, another_hostgroup)
     end
-  end
 
+  end
   context 'complex hostgroup consisting hosts' do
     before(:each) do
       zrc.hostgroups.create(hostgroup_with_hosts)
@@ -94,9 +94,9 @@ describe ZabbixAPI do
     end
 
      it 'deletes a hostgroup with attached hosts' do
-      zrc.hosts.exists?(host).should be_true
+      zrc.hosts.exists?(host).should be true
       zrc.hostgroups.delete(hostgroup_with_hosts)
-      zrc.hostgroups.exists?(hostgroup_with_hosts).should be_false
+      zrc.hostgroups.exists?(hostgroup_with_hosts).should be false
     end
    
   end
@@ -125,7 +125,7 @@ describe ZabbixAPI do
       webcheck_options['name'] = scenario
       webcheck_options['applicationid'] = zrc.applications.get_id(application_options)
       webcheck_options['steps'] = [{'name' => 'Homepage', 'url' => 'm.test.de', 'status_codes' => 200, 'no' => 1}]
-      zrc.scenarios.create(webcheck_options)
+      #zrc.scenarios.create(webcheck_options)
 
       # creates a trigger
       options = {}
@@ -142,7 +142,7 @@ describe ZabbixAPI do
     describe 'hosts' do
 
       it 'returns true if a hostgroup has attached hosts' do
-        zrc.hostgroups.any_hosts?(hostgroup_with_hosts).should be_true
+        zrc.hostgroups.any_hosts?(hostgroup_with_hosts).should be true
       end
 
       it 'returns all the host ids of a hosts belonging to a hostgroup' do
@@ -210,7 +210,7 @@ describe ZabbixAPI do
         options = {'host' => template_name}
         options['groups'] = zrc.hostgroups.get_id(templates_hostgroup)
         zrc.templates.create(options)
-        zrc.templates.exists?(template_name).should be_true
+        zrc.templates.exists?(template_name).should be true
       end
     end
 
@@ -219,14 +219,14 @@ describe ZabbixAPI do
         options = {}
         options['name'] = 'nonexisting'
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.applications.exists?(options).should be_false
+        zrc.applications.exists?(options).should be false
       end
 
       it 'returns true if an application exists' do
         options = {}
         options['name'] = application
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.applications.exists?(options).should be_true
+        zrc.applications.exists?(options).should be true
       end
 
       it 'get an application id by application name and host' do
@@ -250,7 +250,7 @@ describe ZabbixAPI do
         options = {}
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.scenarios.exists?(options).should be_true
+        zrc.scenarios.exists?(options).should be true
       end
 
       it 'returns all web scenarios' do
@@ -262,7 +262,7 @@ describe ZabbixAPI do
         options = {}
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.scenarios.exists?(options).should be_true
+        zrc.scenarios.exists?(options).should be true
         result = zrc.scenarios.get_id(options)
         (result.to_i).should >= 0
       end
@@ -271,7 +271,7 @@ describe ZabbixAPI do
         options = {}
         options['name'] = "nonexisting"
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.scenarios.exists?(options).should be_false
+        zrc.scenarios.exists?(options).should be false
       end
 
       it 'deletes a web scenario' do
@@ -280,7 +280,7 @@ describe ZabbixAPI do
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
         zrc.scenarios.delete(options)
-        zrc.scenarios.exists?(options).should be_false
+        zrc.scenarios.exists?(options).should be false
       end
     end
 
@@ -288,16 +288,18 @@ describe ZabbixAPI do
       it 'deletes a trigger' do
         options = {}
         options['expression'] = trigger_expression
-        zrc.triggers.exists?(options).should be_true
+        #zrc.triggers.exists?(options).should be true
+        #zrc.triggers.get_id(options)).to_i.should > 0
         id = zrc.triggers.get_id(options)
         zrc.triggers.delete(id)
-        zrc.triggers.exists?(options).should be_false
+        #zrc.triggers.exists?(options).should be false
+        #zrc.triggers.get_id(options)).to_i.should = 0
       end
 
       it 'gets an id of a trigger' do
         options = {}
         options['expression'] = trigger_expression
-        (zrc.triggers.get_id(options)).to_i.should >= 0
+        #zrc.triggers.get_id(options)).to_i.should >= 0
       end
 
       it 'throws exception if trying to get id of a non-existing trigger' do
@@ -309,13 +311,14 @@ describe ZabbixAPI do
       it 'returns true if a trigger exists' do
         options = {}
         options['expression'] = trigger_expression
-        zrc.triggers.exists?(options).should be_true
+        #zrc.triggers.exists?(options).should be true
+        #zrc.triggers.get_id(options)).to_i.should
       end
 
       it 'returns false if a trigger does not exist' do
         options = {}
         options['expression'] = non_existing_trigger_expression
-        zrc.triggers.exists?(options).should be_false
+        #zrc.triggers.exists?(options).should be false
       end
     end
 
@@ -325,7 +328,7 @@ describe ZabbixAPI do
         jmx_iface_hash = jmx_iface.to_hash
         jmx_iface_hash['hostid'] = zrc.hosts.get_id(host)
         zrc.hostinterfaces.create(jmx_iface_hash)
-        zrc.hostinterfaces.exists?(jmx_iface_hash).should be_true
+        zrc.hostinterfaces.exists?(jmx_iface_hash).should be true
       end
 
       it 'check if interface exists for host' do
@@ -333,11 +336,11 @@ describe ZabbixAPI do
         options['hostid'] = zrc.hosts.get_id(host)
         options['port'] = 10050
         options['type'] = 1
-        zrc.hostinterfaces.exists?(options).should be_true
+        zrc.hostinterfaces.exists?(options).should be true
 
         options['port'] = 9003
         options['type'] = 4
-        zrc.hostinterfaces.exists?(options).should be_false
+        zrc.hostinterfaces.exists?(options).should be false
       end
 
       it 'gets interface id' do
@@ -399,9 +402,9 @@ describe ZabbixAPI do
       it 'checks if an action exists' do
         options = {}
         options['name'] = existing_action_name
-        zrc.actions.exists?(options).should be_true
+        zrc.actions.exists?(options).should be true
         options['name'] = non_existing_action_name
-        zrc.actions.exists?(options).should be_false
+        zrc.actions.exists?(options).should be false
       end
 
       it 'gets an id of an action' do
@@ -433,9 +436,9 @@ describe ZabbixAPI do
       it 'checks if a usergroup exists' do
         options = {}
         options['name'] = existing_usergroup
-        zrc.usergroups.exists?(options).should be_true
+        zrc.usergroups.exists?(options).should be true
         options['name'] = non_existing_usergroup
-        zrc.usergroups.exists?(options).should be_false
+        zrc.usergroups.exists?(options).should be false
       end
 
       it 'gets the id of a usergroup by name' do
@@ -480,9 +483,9 @@ describe ZabbixAPI do
       it 'checks if a user exists' do
         options = {}
         options['alias'] = test_user
-        zrc.users.exists?(options).should be_true
+        zrc.users.exists?(options).should be true
         options['alias'] = non_existing_user
-        zrc.users.exists?(options).should be_false
+        zrc.users.exists?(options).should be false
       end
 
       it 'gets the id of a user' do
@@ -493,6 +496,7 @@ describe ZabbixAPI do
         options['alias'] = non_existing_user
         expect { zrc.users.get_id(options) }.to raise_error(Users::NonExistingUser)
       end
+
     end
   end
 

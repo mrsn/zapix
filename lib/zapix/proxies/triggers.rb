@@ -1,12 +1,21 @@
 require_relative 'base'
 class Triggers < Base
 
+=begin
   def exists?(options)
-    client.trigger_exists(options)
+    #client.trigger_exists(options)
+    result = client.template_get({'filter' => {'name' => name}})
+    if result.empty?
+      false
+    else
+      true
+    end
   end
+=end
 
   def create(options)
-    client.trigger_create(options) unless exists?(options)
+    #client.trigger_create(options) unless exists?(options)
+    client.trigger_create(options)
   end
 
   def delete(*trigger_ids)

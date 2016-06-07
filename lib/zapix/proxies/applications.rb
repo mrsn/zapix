@@ -7,7 +7,13 @@ class Applications < Base
   end
 
   def exists?(options)
-    client.application_exists(options)
+    #client.application_exists(options)
+    result = client.application_get({'filter' => {'name' => options['name']}})
+    if result.empty?
+      false
+    else
+      true
+    end
   end
 
   def get_id(options)

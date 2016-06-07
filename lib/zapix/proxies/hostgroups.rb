@@ -22,7 +22,13 @@ class HostGroups < Base
   end
 
   def exists?(name)
-    client.hostgroup_exists({'name' => name})
+    #client.hostgroup_exists({'name' => name})
+    result = client.hostgroup_get({'filter' => {'name' => [name]}})
+    if (result.empty? or result == nil)
+      return false
+    else
+      return true
+    end
   end
 
   def get_id(name)
@@ -41,13 +47,17 @@ class HostGroups < Base
   end
 
   def get_host_ids_of(hostgroup)
+    p hostgroup
     result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'refer')
+    p 'AAAA'
+    p result
     extract_host_ids(result)
   end
 
   def any_hosts?(hostgroup)
     raise NonExistingHostgroup, "Hostgroup #{hostgroup} does not exist !" unless exists?(hostgroup)
-    result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').first['hosts'].to_i
+    #result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').first['hosts'].to_i
+    result = client.hostgroup_get('countOutput' => 'true', 'filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').to_i
     result >= 1 ? true : false
   end
 
@@ -58,8 +68,9 @@ class HostGroups < Base
       if(any_hosts?(name))
         # delete all hosts attached to a hostgroup
         host_ids = get_host_ids_of(name)
+        p host_ids
         host_ids.each do |id|
-          client.host_delete(['hostid' => id])
+          client.host_delete([id])
         end
         # now it is ok to delete the group
         client.hostgroup_delete([get_id(name)])

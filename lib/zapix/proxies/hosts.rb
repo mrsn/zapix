@@ -39,7 +39,13 @@ class Hosts < Base
   end
 
   def exists?(name)
-    client.host_exists({'host' => name})
+    #client.host_exists({'host' => name})
+    result = client.host_get({'filter' => {'host' => name}})
+    if result.empty?
+      false
+    else
+      true
+    end
   end
 
   def get_all
@@ -53,7 +59,7 @@ class Hosts < Base
 
   def delete(name)
     if exists?(name)
-      client.host_delete(['hostid' => get_id(name)])
+      client.host_delete([get_id(name)])
     else
       raise NonExistingHost, "Host #{name} cannot be deleted because it does not exist !"
     end

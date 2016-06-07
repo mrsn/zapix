@@ -2,7 +2,13 @@ require_relative 'base'
 class Templates < Base
 
   def exists?(name)
-    client.template_exists({'name' => name})
+    #client.template_exists({'name' => name})
+    result = client.template_get({'filter' => {'name' => name}})
+    if result.empty?
+      false
+    else
+      true
+    end
   end
 
   def create(options)
