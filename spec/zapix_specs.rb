@@ -192,7 +192,7 @@ describe ZabbixAPI do
         host_id = zrc.hosts.get_id(host)
         options = {}
         options['host_id'] = host_id
-        template_id = zrc.templates.get_id('Template OS Solaris')
+        template_id = zrc.templates.get_id('Template App FTP Service')
         options['template_ids'] = [template_id]
         zrc.hosts.update_templates(options)
         zrc.templates.get_templates_for_host(host_id).should include(template_id)
@@ -276,11 +276,11 @@ describe ZabbixAPI do
       end
 
       it 'deletes a web scenario' do
-        pending 'Not implemended'
         options = {}
         options['name'] = scenario
         options['hostid'] = zrc.hosts.get_id(host)
-        zrc.scenarios.delete(options)
+        scenario_id = zrc.scenarios.get_id(options)
+        zrc.scenarios.delete([scenario_id])
         zrc.scenarios.exists?(options).should be false
       end
     end
@@ -289,37 +289,22 @@ describe ZabbixAPI do
       it 'deletes a trigger' do
         options = {}
         options['expression'] = trigger_expression
-        #zrc.triggers.exists?(options).should be true
-        #zrc.triggers.get_id(options)).to_i.should > 0
+        zrc.triggers.get_id(options).to_i.should >= 0
         id = zrc.triggers.get_id(options)
         zrc.triggers.delete(id)
-        #zrc.triggers.exists?(options).should be false
-        #zrc.triggers.get_id(options)).to_i.should = 0
+        expect { zrc.triggers.get_id(options) }.to raise_error(Triggers::NonExistingTrigger)
       end
 
       it 'gets an id of a trigger' do
         options = {}
         options['expression'] = trigger_expression
-        #zrc.triggers.get_id(options)).to_i.should >= 0
+        zrc.triggers.get_id(options).to_i >= 0
       end
 
       it 'throws exception if trying to get id of a non-existing trigger' do
         options = {}
         options['expression'] = non_existing_trigger_expression
         expect { zrc.triggers.get_id(options) }.to raise_error(Triggers::NonExistingTrigger)
-      end
-
-      it 'returns true if a trigger exists' do
-        options = {}
-        options['expression'] = trigger_expression
-        #zrc.triggers.exists?(options).should be true
-        #zrc.triggers.get_id(options)).to_i.should
-      end
-
-      it 'returns false if a trigger does not exist' do
-        options = {}
-        options['expression'] = non_existing_trigger_expression
-        #zrc.triggers.exists?(options).should be false
       end
     end
 

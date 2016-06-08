@@ -22,9 +22,8 @@ class HostGroups < Base
   end
 
   def exists?(name)
-    #client.hostgroup_exists({'name' => name})
     result = client.hostgroup_get({'filter' => {'name' => [name]}})
-    if (result.empty? || result == nil)
+    if (result == nil || result.empty?)
       return false
     else
       return true
@@ -53,8 +52,8 @@ class HostGroups < Base
 
   def any_hosts?(hostgroup)
     raise NonExistingHostgroup, "Hostgroup #{hostgroup} does not exist !" unless exists?(hostgroup)
-    #result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').first['hosts'].to_i
-    result = client.hostgroup_get('countOutput' => 'true', 'filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').to_i
+    result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').first['hosts'].to_i
+    #result = client.hostgroup_get('countOutput' => 'true', 'filter' => {'name' => [hostgroup]}, 'selectHosts' => 'count').to_i
     result >= 1 ? true : false
   end
 
@@ -65,7 +64,6 @@ class HostGroups < Base
       if(any_hosts?(name))
         # delete all hosts attached to a hostgroup
         host_ids = get_host_ids_of(name)
-        p host_ids
         host_ids.each do |id|
           client.host_delete([id])
         end

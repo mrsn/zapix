@@ -7,9 +7,8 @@ class Applications < Base
   end
 
   def exists?(options)
-    #client.application_exists(options)
     result = client.application_get({'filter' => {'name' => options['name']}})
-    if result.empty?
+    if (result == nil || result.empty?)
       false
     else
       true
@@ -20,7 +19,7 @@ class Applications < Base
     if exists?(options)
       client.application_get({
         'filter' => {'name' => options['name'],
-        'hostid' => options['hostid']}}).first['applicationid']
+        'hostid' => options['hostid']}}).first['applicationids']
     else
       raise NonExistingApplication, "Application #{options['name']} does not exist !"
     end

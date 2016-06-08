@@ -39,9 +39,8 @@ class Hosts < Base
   end
 
   def exists?(name)
-    #client.host_exists({'host' => name})
     result = client.host_get({'filter' => {'host' => name}})
-    if result.empty? || result == nil
+    if (result == nil || result.empty?)
       false
     else
       true

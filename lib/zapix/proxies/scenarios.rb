@@ -7,8 +7,7 @@ class Scenarios < Base
 
   def get_id(options)
     client.httptest_get({
-      'filter' => {'name' => options['name'],
-      'hostid' => options['hostid']}})
+      'filter' => {'name' => options['name'], 'hostid' => options['hostid']}}).first['httptestid']
   end
 
   def delete(options)
