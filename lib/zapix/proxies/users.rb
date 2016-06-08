@@ -18,8 +18,8 @@ class Users < Base
     end
   end
 
-  def delete(usergroup_ids)
-    client.user_delete(usergroup_ids)
+  def delete(user_ids)
+    client.user_delete(user_ids)
   end
 
   class NonExistingUser < StandardError; end

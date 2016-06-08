@@ -2,21 +2,21 @@ require_relative 'base'
 
 class Scenarios < Base
   def create(options)
-    client.webcheck_create(options) unless exists?(options)
+    client.httptest_create(options) unless exists?(options)
   end
 
   def get_id(options)
-    client.webcheck_get({
+    client.httptest_get({
       'filter' => {'name' => options['name'],
       'hostid' => options['hostid']}})
   end
 
   def delete(options)
-    client.webcheck_delete(options)
+    client.httptest_delete(options)
   end
 
   def exists?(options)
-    result = client.webcheck_get({
+    result = client.httptest_get({
       'countOutput' => true,
       'filter' => {'name' => options['name'],
       'hostid' => options['hostid']}})
@@ -25,7 +25,7 @@ class Scenarios < Base
   end
 
   def get_all
-    scenarios = client.webcheck_get({'output' => 'extend'})
+    scenarios = client.httptest_get({'output' => 'extend'})
     names = extract_names(scenarios)
   end
 

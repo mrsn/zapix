@@ -2,7 +2,13 @@ require_relative 'base'
 
 class Actions < Base
   def exists?(options)
-    client.action_exists(options)
+    #client.action_exists(options)
+    result = client.action_get({'filter' => {'name' => options['name']}})
+    if (result.empty? || result == nil)
+      return false
+    else
+      return true
+    end
   end
 
   def create(options)

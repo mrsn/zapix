@@ -24,7 +24,7 @@ class HostGroups < Base
   def exists?(name)
     #client.hostgroup_exists({'name' => name})
     result = client.hostgroup_get({'filter' => {'name' => [name]}})
-    if (result.empty? or result == nil)
+    if (result.empty? || result == nil)
       return false
     else
       return true
@@ -47,10 +47,7 @@ class HostGroups < Base
   end
 
   def get_host_ids_of(hostgroup)
-    p hostgroup
     result = client.hostgroup_get('filter' => {'name' => [hostgroup]}, 'selectHosts' => 'refer')
-    p 'AAAA'
-    p result
     extract_host_ids(result)
   end
 

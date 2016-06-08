@@ -7,7 +7,13 @@ class Usergroups < Base
   end
 
   def exists?(options)
-    client.usergroup_exists(options)
+    #client.usergroup_exists(options)
+    result = client.usergroup_get({'filter' => {'name' => options['name']}})
+    if result.empty? || result == nil
+      false
+    else
+      true
+    end
   end
 
   def get_id(options)

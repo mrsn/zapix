@@ -17,7 +17,8 @@ application = 'web scenarios'
 host = 'hostname'
 scenario = 'scenario'
 trigger_description = 'Webpage failed on {HOST.NAME}'
-trigger_expression = "{#{host}:web.test.fail[#{scenario}].max(#3)}#0"
+#trigger_expression = "{#{host}:web.test.fail[#{scenario}].max(#3)}#0"
+trigger_expression = "{#{host}:system.cpu.load[percpu,avg1].last()}>5"                
 non_existing_trigger_expression = '{vfs.file.cksum[/etc/passwd].diff(0)}>0'
 existing_action_name = 'Report problems to Zabbix administrators'
 non_existing_action_name = 'No action defined'
@@ -72,7 +73,7 @@ describe ZabbixAPI do
     end
 
     it 'returns false if a hostgroup has no attached hosts' do
-      zrc.hostgroups.any_hosts?(hostgroup).should be_falsey
+      zrc.hostgroups.any_hosts?(hostgroup).should be false
     end
 
     it 'returns all hostgroups' do
@@ -125,7 +126,7 @@ describe ZabbixAPI do
       webcheck_options['name'] = scenario
       webcheck_options['applicationid'] = zrc.applications.get_id(application_options)
       webcheck_options['steps'] = [{'name' => 'Homepage', 'url' => 'm.test.de', 'status_codes' => 200, 'no' => 1}]
-      #zrc.scenarios.create(webcheck_options)
+      zrc.scenarios.create(webcheck_options)
 
       # creates a trigger
       options = {}
@@ -191,7 +192,7 @@ describe ZabbixAPI do
         host_id = zrc.hosts.get_id(host)
         options = {}
         options['host_id'] = host_id
-        template_id = zrc.templates.get_id('Template App Agentless')
+        template_id = zrc.templates.get_id('Template OS Solaris')
         options['template_ids'] = [template_id]
         zrc.hosts.update_templates(options)
         zrc.templates.get_templates_for_host(host_id).should include(template_id)
@@ -264,7 +265,7 @@ describe ZabbixAPI do
         options['hostid'] = zrc.hosts.get_id(host)
         zrc.scenarios.exists?(options).should be true
         result = zrc.scenarios.get_id(options)
-        (result.to_i).should >= 0
+        (result['result'].to_i).should >= 0
       end
 
       it 'returns false if a web scenario does not exist' do
@@ -477,7 +478,7 @@ describe ZabbixAPI do
         user_options = {}
         user_options['alias'] = test_user
         user_options['userid'] = zrc.users.get_id(user_options)
-        zrc.users.delete(user_options)
+        zrc.users.delete([user_options['userid']])
       end
 
       it 'checks if a user exists' do
